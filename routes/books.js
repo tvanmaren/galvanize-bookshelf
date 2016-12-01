@@ -7,8 +7,6 @@ const router = express.Router();
 
 // YOUR CODE HERE
 
-module.exports = router;
-
 const knex = require('../knex');
 
 const {
@@ -140,3 +138,5 @@ router.delete('/books/:id', (req, res, next) => {
       next(err);
     });
 });
+
+module.exports = router;
