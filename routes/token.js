@@ -8,7 +8,7 @@ const router = express.Router();
 // YOUR CODE HERE
 
 router.get('/token', (req, res, next) => {
-  if (req.signedCookies) {
+  if (req.secret) {
     res.sendStatus(200);
   } else {
     res.sendStatus(400);
