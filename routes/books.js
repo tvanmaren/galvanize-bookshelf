@@ -27,10 +27,12 @@ router.get('/books', (_req, res, next) => {
 });
 
 router.get('/books/:id', (req, res, next) => {
-  let id = parseInt(req.params.id);
+  const id = parseInt(req.params.id);
+
   if (isNaN(id)) {
     next(boom.create(404));
-  } else {
+  }
+  else {
     knex('books')
       .where('books.id', parseInt(req.params.id))
       .first()
@@ -47,7 +49,7 @@ router.get('/books/:id', (req, res, next) => {
 });
 
 router.post('/books', (req, res, next) => {
-  let returnFields = {
+  const returnFields = {
     title: 'Title',
     author: 'Author',
     genre: 'Genre',
@@ -55,7 +57,7 @@ router.post('/books', (req, res, next) => {
     cover_url: 'Cover URL'
   };
 
-  let insertion = {
+  const insertion = {
     title: req.body.title,
     author: req.body.author,
     genre: req.body.genre,
@@ -63,12 +65,9 @@ router.post('/books', (req, res, next) => {
     cover_url: req.body.coverUrl
   };
 
-  for (let value in insertion) {
-    switch (insertion[value]) {
-    case (undefined):
-      {
-        next(boom.create(400, `${returnFields[value]} must not be blank`));
-      }
+  for (const value in insertion) {
+    if (!(insertion[value])) {
+      return next(boom.create(400, `${returnFields[value]} must not be blank`));
     }
   }
 
@@ -83,7 +82,7 @@ router.post('/books', (req, res, next) => {
 });
 
 router.patch('/books/:id', (req, res, next) => {
-  let id = parseInt(req.params.id);
+  const id = parseInt(req.params.id);
 
   if (isNaN(id)) {
     return next();
@@ -91,25 +90,26 @@ router.patch('/books/:id', (req, res, next) => {
 
   knex('books')
     .where('books.id', id)
-    .first()
     .then((val) => {
-      if (!val) {
+      if (!(val[0])) {
         return next();
-      } else if (!req.body) {
-        return next(boom.create(400));
-      } else {
-        const replacement = decamelizeKeys(req.body);
-
-        knex('books')
-          .where('books.id', id)
-          .update(replacement, '*')
-          .then((updatedRow) => {
-            res.send(camelizeKeys(updatedRow[0]));
-          })
-          .catch((err) => {
-            next(err);
-          });
       }
+
+      if (!req.body) {
+        return next(boom.create(400));
+      }
+
+      const replacement = decamelizeKeys(req.body);
+
+      knex('books')
+        .where('books.id', id)
+        .update(replacement, '*')
+        .then((updatedRow) => {
+          res.send(camelizeKeys(updatedRow[0]));
+        })
+        .catch((err) => {
+          next(err);
+        });
     })
     .catch((err) => {
       return next(err);
@@ -117,7 +117,7 @@ router.patch('/books/:id', (req, res, next) => {
 });
 
 router.delete('/books/:id', (req, res, next) => {
-  let id = parseInt(req.params.id);
+  const id = parseInt(req.params.id);
 
   if (isNaN(id)) {
     next();
