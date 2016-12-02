@@ -14,7 +14,7 @@ const {
 
 const boom = require('boom');
 
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt-as-promised');
 
 router.use('/users', (req, res, next) => { // request validation
   const userInfo = decamelizeKeys(req.body);
