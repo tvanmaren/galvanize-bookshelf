@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable no-unused-vars*/
+
 exports.up = function(knex, Promise) {
   return knex.schema.createTable('users', (table) => {
     table.increments();

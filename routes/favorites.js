@@ -17,7 +17,17 @@ const {
 
 const id = 1;
 
-// YOUR CODE HERE
+// Methods //
+
+const checkBookId = (bookId) => {
+  if (typeof bookId !== 'number' || isNaN(bookId)) {
+    return false;
+  }
+
+  return true;
+};
+
+// Router Paths //
 
 router.use('/favorites', checkVerification);
 
@@ -34,7 +44,7 @@ router.get('/favorites', (req, res, next) => {
 });
 
 router.get('/favorites/check?', (req, res, next) => {
-  const bookId=parseInt(req.query.bookId);
+  const bookId = parseInt(req.query.bookId);
 
   if (!checkBookId(bookId)) {
     next(400);
@@ -58,6 +68,7 @@ router.get('/favorites/check?', (req, res, next) => {
 });
 
 router.post('/favorites/', (req, res, next) => {
+// eslint-disable-next-line dot-notation
   req.body['userId'] = id;
   const toInsert = decamelizeKeys(req.body);
 
@@ -84,6 +95,7 @@ router.post('/favorites/', (req, res, next) => {
 });
 
 router.delete('/favorites/', (req, res, next) => {
+// eslint-disable-next-line dot-notation
   req.body['userId'] = id;
   const toDelete = decamelizeKeys(req.body);
 
@@ -108,6 +120,7 @@ router.delete('/favorites/', (req, res, next) => {
     });
 });
 
+// eslint-disable-next-line max-params
 router.use((err, _req, _res, next) => {
   if (err.code === '23503') {
     next(boom.create(404, 'Book not found'));
@@ -134,13 +147,5 @@ router.use((err, _req, _res, next) => {
     }
   }
 });
-
-function checkBookId(bookId) {
-  if (typeof bookId !== 'number' || isNaN(bookId)) {
-    return false;
-  }
-
-  return true;
-}
 
 module.exports = router;

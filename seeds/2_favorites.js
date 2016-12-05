@@ -1,9 +1,11 @@
 'use strict';
 
-exports.seed = function (knex, Promise) {
+/* eslint-disable camelcase*/
+
+exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
   return knex('favorites').del()
-    .then(function () {
+    .then(() => {
       return Promise.all([
         // Inserts seed entries
         knex('favorites')
@@ -15,6 +17,7 @@ exports.seed = function (knex, Promise) {
           updated_at: new Date('2016-06-29 14:26:16 UTC')
         })
         .then(() => {
+          // eslint-disable-next-line max-len
           return knex.raw("SELECT setval('favorites_id_seq', (SELECT MAX(id) FROM favorites))");
         })
       ]);

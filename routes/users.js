@@ -1,5 +1,7 @@
 'use strict';
 
+/* eslint-disable camelcase*/
+
 const express = require('express');
 
 // eslint-disable-next-line new-cap
@@ -44,7 +46,7 @@ router.use('/users', (req, res, next) => { // request validation
 });
 
 router.post('/users', (req, res, next) => { // request execution
-  let userInfo = decamelizeKeys(req.body);
+  const userInfo = decamelizeKeys(req.body);
   const password = userInfo.password;
 
   delete userInfo.password;
@@ -68,7 +70,7 @@ router.post('/users', (req, res, next) => { // request execution
               res.send(camelizeKeys(newRow));
             });
         })
-        .catch((err)=>{
+        .catch((err) => {
           next(boom.create(err));
         });
     })

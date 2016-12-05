@@ -1,11 +1,14 @@
 'use strict';
 
+/* eslint-disable camelcase*/
+
 exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
   return knex('books').del()
     .then(() => {
       return Promise.all([
         // Inserts seed entries
+        /* eslint-disable max-len */
         knex('books').insert({
           id: 1,
           title: 'JavaScript, The Good Parts',
@@ -91,3 +94,5 @@ exports.seed = function(knex, Promise) {
       ]);
     });
 };
+
+/* eslint-enable max-len */

@@ -36,6 +36,7 @@ suite('part4 routes token', () => {
       .expect(200, 'false', done);
   });
 
+  /* eslint-disable max-len */
   test('POST /token', (done) => {
     request(server)
       .post('/token')
@@ -59,6 +60,7 @@ suite('part4 routes token', () => {
       }, done);
   });
 
+/* eslint-enable max-len */
   test('GET /token with token', (done) => {
     const agent = request.agent(server);
 

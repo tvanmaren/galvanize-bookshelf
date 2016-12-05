@@ -1,10 +1,14 @@
 'use strict';
-exports.seed = function (knex, Promise) {
+
+/* eslint-disable camelcase*/
+
+exports.seed = function(knex, Promise) {
   // Deletes ALL existing entries
   return knex('users').del()
-    .then(function () {
+    .then(() => {
       return Promise.all([
         // Inserts seed entries
+        /* eslint-disable max-len */
         knex('users').insert({
           id: 1,
           first_name: 'Joanne',
@@ -19,3 +23,5 @@ exports.seed = function (knex, Promise) {
       ]);
     });
 };
+
+/* eslint-enable max-len */
