@@ -45,3 +45,6 @@ Use the [Heroku Scheduler](https://devcenter.heroku.com/articles/scheduler) add-
 Once you're satisfied, find a classmate and see if that person would like some help.
 
 #### [⇐ Previous](4_authentication_authorization.md) | [Next ⇒](README.md)
+
+
+## [Click here to view Tristan's Bookshelf Setup](https://tvanmaren-galvanize-bookshelf.herokuapp.com/)
