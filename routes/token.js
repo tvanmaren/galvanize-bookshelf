@@ -38,6 +38,13 @@ router.post('/token', (req, res, next) => {
   const email = req.body.email;
   const password = req.body.password;
   let hashed_password, id, first_name, last_name;
+
+  if (typeof email==='undefined') {
+    next(boom.create(400, 'Email must not be blank'));
+  }
+  if (typeof password==='undefined') {
+    next(boom.create(400, 'Password must not be blank'));
+  }
   if (email && password) {
     console.log('email', email, 'password', password);
     knex('users')
