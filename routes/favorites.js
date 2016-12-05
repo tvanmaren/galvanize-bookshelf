@@ -136,7 +136,6 @@ router.use((err, _req, _res, next) => {
 });
 
 function checkBookId(bookId) {
-  console.log(typeof bookId);
   if (typeof bookId !== 'number' || isNaN(bookId)) {
     return false;
   }
