@@ -5,7 +5,6 @@ const express = require('express');
 // eslint-disable-next-line new-cap
 const router = express.Router();
 
-const bcrypt = require('bcrypt-as-promised');
 const boom = require('boom');
 const knex = require('../knex');
 const {
@@ -13,7 +12,7 @@ const {
   decamelizeKeys
 } = require('humps');
 const {
-  verifyUser, checkVerification
+  checkVerification
 } = require('./mod/verifyUser');
 
 const id = 1;
@@ -23,7 +22,6 @@ const id = 1;
 router.use('/favorites', checkVerification);
 
 router.get('/favorites', (req, res, next) => {
-  console.log('passed verification for', req.cookies.token);
   knex('favorites')
     .where('favorites.user_id', id)
     .join('books', 'books.id', 'favorites.book_id')
@@ -31,7 +29,6 @@ router.get('/favorites', (req, res, next) => {
       res.send(camelizeKeys(results));
     })
     .catch((err) => {
-      console.error(err);
       next(err);
     });
 });
@@ -39,10 +36,13 @@ router.get('/favorites', (req, res, next) => {
 // router.get('/favorites/check?', checkVerification);
 
 router.get('/favorites/check?', (req, res, next) => {
-  console.log('passed verification for', req.cookies.token);
   const {
     bookId
   } = req.query;
+
+  if (!checkBookId(bookId)) {
+    next(400);
+  }
   knex('favorites')
     .where('favorites.user_id', id)
     .join('books', 'books.id', 'favorites.book_id')
@@ -50,12 +50,12 @@ router.get('/favorites/check?', (req, res, next) => {
     .then((result) => {
       if (result[0]) {
         res.send(true);
-      } else {
+      }
+      else {
         res.send(false);
       }
     })
-    .catch((err) =>{
-      console.error(err);
+    .catch((err) => {
       next(err);
     });
 });
@@ -63,23 +63,27 @@ router.get('/favorites/check?', (req, res, next) => {
 // router.post('/favorites', checkVerification);
 
 router.post('/favorites/', (req, res, next) => {
-  console.log('passed verification for', req.cookies.token);
   req.body['userId'] = id;
   const toInsert = decamelizeKeys(req.body);
-  console.log(toInsert);
+
+  if (!checkBookId(toInsert.book_id)) {
+    next(400);
+  }
+
   knex('favorites')
     .insert(toInsert)
     .join('books', 'books.id', 'favorites.book_id')
-    .where('favorites.book_id', parseInt(toInsert.bookId))
+    .where('favorites.book_id', parseInt(toInsert.book_id))
     .returning('*')
     .then((result) => {
       if (result[0]) {
-        console.log(result);
         res.send(camelizeKeys(result[0]));
+      }
+      else {
+        next();
       }
     })
     .catch((err) => {
-      console.error(err);
       next(err);
     });
 });
@@ -87,39 +91,63 @@ router.post('/favorites/', (req, res, next) => {
 // router.delete('/favorites', checkVerification);
 
 router.delete('/favorites/', (req, res, next) => {
-  console.log('passed verification for', req.cookies.token);
   req.body['userId'] = id;
   const toDelete = decamelizeKeys(req.body);
+
+  if (!checkBookId(toDelete.book_id)) {
+    next(400);
+  }
+
   knex('favorites')
     .where(toDelete)
     .del()
     .returning(['book_id', 'user_id'])
     .then((result) => {
       if (result[0]) {
-        console.log(result);
         res.send(camelizeKeys(result[0]));
+      }
+      else {
+        next('404F');
       }
     })
     .catch((err) => {
-      console.error(err);
       next(err);
     });
 });
 
-router.use((err, _req, res, next) => {
-  console.log('ERROR', err);
-  if (err === 200) {
-    console.log('sending error 200');
-    // res.set(200).send(false);
-    next(boom.create(200, false));
+router.use((err, _req, _res, next) => {
+  if (err.code === '23503') {
+    next(boom.create(404, 'Book not found'));
   }
-  if (err === 401) {
-    console.log('sending error 401');
-    // res.set(401).send('Unauthorized');
-    next(boom.create(401, 'Unauthorized'));
-  } else {
-    next(boom.create(err));
+  switch (err) {
+    case 200: {
+      next(boom.create(200, false));
+      break;
+    }
+    case 400: {
+      next(boom.create(400, 'Book ID must be an integer'));
+      break;
+    }
+    case 401: {
+      next(boom.create(401, 'Unauthorized'));
+      break;
+    }
+    case '404F': {
+      next(boom.create(404, 'Favorite not found'));
+      break;
+    }
+    default: {
+      next();
+    }
   }
 });
+
+function checkBookId(bookId) {
+  if (typeof bookId !== 'number') {
+    return false;
+  }
+
+  return true;
+}
 
 module.exports = router;

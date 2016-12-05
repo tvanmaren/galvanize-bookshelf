@@ -1,4 +1,5 @@
 'use strict';
+
 // TOKEN VERIFICATION MODULES //
 
 const jwt = require('jsonwebtoken');
@@ -6,33 +7,32 @@ const secret = process.env.JWT_SECRET;
 
 function tokenResultsHandler(err, result) {
   if (err) {
-    console.error('error', err);
     return [200, false];
-  } else if (result) {
-    console.log('result:', result);
+  }
+  else if (result) {
     return [200, true];
   }
 }
 
 function verifyUser(token) {
   if (token) {
-    console.log('verifyUser', 'token:', token);
     return tokenResultsHandler(jwt.verify(token, secret));
-  } else {
-    console.log('verifyUser', 'token:', token);
+  }
+  else if (!token) {
     return tokenResultsHandler(true, false);
   }
 }
 
 function checkVerification(req, res, next) {
-  let verified;
-  if (req.cookies.token) {
-    verified = verifyUser(req.cookies.token);
-    console.log('verified:', verified);
-  } else {
-    console.log('no token in request');
+  if (!req.cookies.token) {
     next(401);
   }
+  else if (req.cookies.token) {
+    verifyUser(req.cookies.token);
+    
+    // should assign to "verified" & check for success before continuing
+  }
+
   next();
 
   // if (!verified[1]) {
@@ -41,6 +41,7 @@ function checkVerification(req, res, next) {
   // else {
   //   next();
   // }
+
 }
 
-module.exports={verifyUser, checkVerification};
+module.exports = { verifyUser, checkVerification };
