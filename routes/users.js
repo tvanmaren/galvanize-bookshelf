@@ -54,19 +54,23 @@ router.post('/users', (req, res, next) => { // request execution
     .insert(userInfo)
     .returning('id')
     .then((id) => {
-      bcrypt.hash(password, 1, (_err, hash) => {
-        knex('users')
-          .where('id', parseInt(id[0]))
-          .update('hashed_password', hash)
-          .returning('*')
-          .then((newRow) => {
-            newRow = newRow[0];
-            delete newRow.hashed_password;
-            delete newRow.created_at;
-            delete newRow.updated_at;
-            res.send(camelizeKeys(newRow));
-          });
-      });
+      bcrypt.hash(password, 8)
+        .then((hash) => {
+          knex('users')
+            .update('hashed_password', hash)
+            .where('id', parseInt(id[0]))
+            .returning('*')
+            .then((newRow) => {
+              newRow = newRow[0];
+              delete newRow.hashed_password;
+              delete newRow.created_at;
+              delete newRow.updated_at;
+              res.send(camelizeKeys(newRow));
+            });
+        })
+        .catch((err)=>{
+          next(boom.create(err));
+        });
     })
     .catch((err) => {
       next(boom.create(err));

@@ -33,20 +33,17 @@ router.get('/favorites', (req, res, next) => {
     });
 });
 
-// router.get('/favorites/check?', checkVerification);
-
 router.get('/favorites/check?', (req, res, next) => {
-  const {
-    bookId
-  } = req.query;
+  const bookId=parseInt(req.query.bookId);
 
   if (!checkBookId(bookId)) {
     next(400);
   }
+
   knex('favorites')
     .where('favorites.user_id', id)
     .join('books', 'books.id', 'favorites.book_id')
-    .where('favorites.book_id', parseInt(bookId))
+    .where('favorites.book_id', bookId)
     .then((result) => {
       if (result[0]) {
         res.send(true);
@@ -59,8 +56,6 @@ router.get('/favorites/check?', (req, res, next) => {
       next(err);
     });
 });
-
-// router.post('/favorites', checkVerification);
 
 router.post('/favorites/', (req, res, next) => {
   req.body['userId'] = id;
@@ -87,8 +82,6 @@ router.post('/favorites/', (req, res, next) => {
       next(err);
     });
 });
-
-// router.delete('/favorites', checkVerification);
 
 router.delete('/favorites/', (req, res, next) => {
   req.body['userId'] = id;
@@ -143,7 +136,8 @@ router.use((err, _req, _res, next) => {
 });
 
 function checkBookId(bookId) {
-  if (typeof bookId !== 'number') {
+  console.log(typeof bookId);
+  if (typeof bookId !== 'number' || isNaN(bookId)) {
     return false;
   }
 

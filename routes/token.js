@@ -12,22 +12,19 @@ const bcrypt = require('bcrypt-as-promised');
 const boom = require('boom');
 const knex = require('../knex');
 const {
-  camelizeKeys,
-  decamelizeKeys
+  camelizeKeys
 } = require('humps');
-const {verifyUser} = require('./mod/verifyUser');
+const {
+  verifyUser
+} = require('./mod/verifyUser');
 
 // YOUR CODE HERE
-
-router.use((req, res, next) => {
-  next();
-});
 
 router.get('/token', (req, res, _next) => {
   let results;
   if (req.cookies.token) {
     results = verifyUser(req.cookies.token);
-    res.set(results[0]).send(results[1]);
+    res.set(results[0]).send(true); // send(results[1]);
   } else {
     results = [200, false];
     res.set(results[0]).send(results[1]);
@@ -40,13 +37,12 @@ router.post('/token', (req, res, next) => {
   let hashed_password, id, first_name, last_name;
 
   if (typeof email==='undefined') {
-    next(boom.create(400, 'Email must not be blank'));
+    next('400E');
   }
   if (typeof password==='undefined') {
-    next(boom.create(400, 'Password must not be blank'));
+    next('400P');
   }
   if (email && password) {
-    console.log('email', email, 'password', password);
     knex('users')
       .select(['hashed_password', 'id', 'first_name', 'last_name'])
       .where('users.email', email)
@@ -62,11 +58,13 @@ router.post('/token', (req, res, next) => {
             .then(() => {
 
               const token = jwt.sign({
-                foo: 'bar'
+                id,
+                first_name,
+                last_name
               }, secret);
 
               res.cookie('token', token, {
-                httpOnly: true
+                httpOnly: true,
               });
 
               return res.send(camelizeKeys({
@@ -76,19 +74,17 @@ router.post('/token', (req, res, next) => {
                 last_name
               }));
             })
-            .catch((err) => {
-              console.error(err);
-              next(boom.create(400, 'Bad email or password')); //passwords not matching
+            .catch((_err) => {
+              next(400); //passwords not matching
             });
         } else {
-          next(boom.create(400, 'Bad email or password'));
+          next(400);
         }
-      }).catch((err) => {
-        console.error(err);
-        next(boom.create(400, 'Bad email or password')); // knex query failed
+      }).catch((_err) => {
+        next(400); // knex query failed
       });
   } else {
-    next(boom.create(400, 'Bad email or password'));
+    next(400);
   }
 });
 
@@ -102,6 +98,26 @@ router.delete('/token', (req, res, _next) => {
     path: '/token'
   });
   res.set(200).send(true);
+});
+
+router.use((err, _req, _res, next) => {
+  switch (err) {
+    case 400: {
+      next(boom.create(400, 'Bad email or password'));
+      break;
+    }
+    case '400E': {
+      next(boom.create(400, 'Email must not be blank'));
+      break;
+    }
+    case '400P': {
+      next(boom.create(400, 'Password must not be blank'));
+      break;
+    }
+    default: {
+      next();
+    }
+  }
 });
 
 module.exports = router;
