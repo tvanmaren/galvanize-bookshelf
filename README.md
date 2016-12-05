@@ -1,3 +1,5 @@
+
+### [Click here to view Tristan's Bookshelf Project on Heroku](https://tvanmaren-galvanize-bookshelf.herokuapp.com/)
 #### [⇐ Previous](5_heroku_deployment.md) | [Next ⇒](1_migrations_seeds.md)
 
 # Galvanize Bookshelf
