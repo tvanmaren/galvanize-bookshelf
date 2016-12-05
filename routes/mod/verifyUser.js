@@ -7,7 +7,7 @@ const secret = process.env.JWT_SECRET;
 function tokenResultsHandler(err, result) {
   if (err) {
     console.error('error', err);
-    return [200, true];
+    return [200, false];
   } else if (result) {
     console.log('result:', result);
     return [200, true];
@@ -24,4 +24,23 @@ function verifyUser(token) {
   }
 }
 
-module.exports={verifyUser};
+function checkVerification(req, res, next) {
+  let verified;
+  if (req.cookies.token) {
+    verified = verifyUser(req.cookies.token);
+    console.log('verified:', verified);
+  } else {
+    console.log('no token in request');
+    next(401);
+  }
+  next();
+
+  // if (!verified[1]) {
+  //   next(200);
+  // }
+  // else {
+  //   next();
+  // }
+}
+
+module.exports={verifyUser, checkVerification};

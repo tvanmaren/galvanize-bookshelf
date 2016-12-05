@@ -15,7 +15,7 @@ const {
   camelizeKeys,
   decamelizeKeys
 } = require('humps');
-const {verifyUser} = require('./mod/verifyMe');
+const {verifyUser} = require('./mod/verifyUser');
 
 // YOUR CODE HERE
 
