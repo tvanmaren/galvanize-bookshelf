@@ -33,7 +33,6 @@ router.use('/favorites', checkVerification);
 
 router.get('/favorites', (req, res, next) => {
   knex('favorites')
-    .where('favorites.user_id', id)
     .join('books', 'books.id', 'favorites.book_id')
     .then((results) => {
       res.send(camelizeKeys(results));
@@ -122,9 +121,6 @@ router.delete('/favorites/', (req, res, next) => {
 
 // eslint-disable-next-line max-params
 router.use((err, _req, _res, next) => {
-  if (err.code === '23503') {
-    next(boom.create(404, 'Book not found'));
-  }
   switch (err) {
     case 200: {
       next(boom.create(200, false));
@@ -143,6 +139,9 @@ router.use((err, _req, _res, next) => {
       break;
     }
     default: {
+      if (err.code === '23503') {
+        next(boom.create(404, 'Book not found'));
+      }
       next();
     }
   }
